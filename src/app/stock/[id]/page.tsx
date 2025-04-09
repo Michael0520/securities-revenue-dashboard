@@ -26,14 +26,13 @@ import { CHART_CONFIG, BUTTON_STYLE } from "@/constants/chart";
 import { TIME_RANGE_CONFIG, TimeRangeKey } from "@/constants/timeRange";
 import { REVENUE_TABLE_CONFIG } from "@/constants/table";
 import { EnhancedMonthlyRevenue } from "@/types/stock";
+import { DEFAULT_STOCK_ID } from "@/hooks/api/config";
 
 export default function StockDetailPage() {
   const theme = useTheme();
   const { mode } = useColorScheme();
   const params = useParams();
-  const stockId = (params?.id as string) || "2867";
-
-  const [showDetailedData, setShowDetailedData] = useState(false);
+  const stockId = (params?.id as string) || DEFAULT_STOCK_ID;
   
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRangeKey>('THREE_YEARS');
@@ -254,7 +253,6 @@ export default function StockDetailPage() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => setShowDetailedData(!showDetailedData)}
               size="small"
               sx={BUTTON_STYLE}
             >
@@ -269,37 +267,6 @@ export default function StockDetailPage() {
             naColor={naColor}
             formatMonthFn={formatYearMonth}
           />
-
-          <Box
-            sx={{ px: 2, py: 1, textAlign: "right", borderTop: "1px solid" }}
-          >
-            <Typography variant="caption" color="text.secondary">
-              圖表單位：千元，數據來自公開資訊觀測站
-            </Typography>
-          </Box>
-
-          {showDetailedData && (
-            <Box p={2} sx={{ borderTop: "1px solid" }}>
-              <Typography variant="subtitle2" gutterBottom>
-                原始數據({sortedData.length}筆):
-              </Typography>
-              <pre
-                style={{
-                  overflowX: "auto",
-                  background:
-                    theme.palette.mode === "dark"
-                      ? alpha(theme.palette.background.paper, 0.2)
-                      : alpha(theme.palette.action.hover, 0.1),
-                  padding: "10px",
-                  borderRadius: "4px",
-                  fontSize: "12px",
-                }}
-              >
-                {JSON.stringify(sortedData.slice(0, 10), null, 2)}
-                {sortedData.length > 10 && "\n... 更多數據省略"}
-              </pre>
-            </Box>
-          )}
         </Box>
       </Paper>
     </Container>
