@@ -16,19 +16,16 @@ import {
   MenuItem,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { useStockInfo, useMonthlyRevenue } from "@/api/hooks";
+import { useStockInfo } from "@/hooks/api/useStockInfo";
+import { useMonthlyRevenue } from "@/hooks/api/useMonthlyRevenue";
 
 import { RevenueChart } from "./components/chart/RevenueChart";
 import { RevenueTable } from "@/components/RevenueTable/RevenueTable";
 import { formatYearMonth } from "@/utils/formatters";
-import { 
-  CHART_CONFIG, 
-  TIME_RANGE_CONFIG, 
-  BUTTON_STYLE, 
-  TimeRangeKey, 
-  REVENUE_TABLE_CONFIG, 
-  RevenueItem 
-} from "./config";
+import { CHART_CONFIG, BUTTON_STYLE } from "@/constants/chart";
+import { TIME_RANGE_CONFIG, TimeRangeKey } from "@/constants/timeRange";
+import { REVENUE_TABLE_CONFIG } from "@/constants/table";
+import { EnhancedMonthlyRevenue } from "@/types/stock";
 
 export default function StockDetailPage() {
   const theme = useTheme();
@@ -266,7 +263,7 @@ export default function StockDetailPage() {
           </Box>
 
           <RevenueTable
-            data={displayMonths as RevenueItem[]}
+            data={displayMonths as EnhancedMonthlyRevenue[]}
             firstColumnLabel={REVENUE_TABLE_CONFIG.firstColumnLabel}
             rows={REVENUE_TABLE_CONFIG.rows}
             naColor={naColor}

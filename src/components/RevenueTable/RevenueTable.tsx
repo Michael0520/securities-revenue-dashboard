@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box } from '@mui/material';
 import { useRef, useEffect, CSSProperties, ReactNode } from "react";
 
 export interface TableItem {

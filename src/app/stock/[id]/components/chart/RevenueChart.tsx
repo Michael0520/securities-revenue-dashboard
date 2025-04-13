@@ -11,8 +11,8 @@ import {
   ResponsiveChartContainer,
 } from "@mui/x-charts";
 
-import { CHART_CONFIG } from "../../config";
-import { ChartDataItem } from "../../types";
+import { CHART_CONFIG } from "@/constants/chart";
+import { ChartDataItem } from "@/types/stock";
 
 interface RevenueChartProps {
   chartData: ChartDataItem[];

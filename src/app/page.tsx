@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { DEFAULT_STOCK_ID } from "@/api/hooks";
+import { DEFAULT_STOCK_ID } from "@/hooks/api/config";
 
 export default function Home() {
   const router = useRouter();
