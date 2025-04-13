@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import {
   Box,
@@ -100,6 +100,20 @@ export default function StockDetailPage() {
     mode === "dark"
       ? CHART_CONFIG.colors.neutral
       : theme.palette.text.secondary;
+
+  const tableScrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // auto scroll to right
+  useEffect(() => {
+    if (tableScrollContainerRef.current && !isLoading) {
+      const scrollContainer = tableScrollContainerRef.current;
+      const timeoutId = setTimeout(() => {
+        scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isLoading, sortedData]);
 
   if (isLoading) {
     return (
@@ -263,6 +277,7 @@ export default function StockDetailPage() {
 
           {/* Custom Table */}
           <Box
+            ref={tableScrollContainerRef}
             sx={{
               width: "100%",
               overflowX: "auto",
