@@ -1,15 +1,15 @@
-import { TimeRange } from "./types";
-
 export const TIME_RANGE_CONFIG = {
-  [TimeRange.ONE_YEAR]: {
-    label: "每月營收",
-    years: 1,
+  'THREE_YEARS': {
+    label: "近 3 年",
+    years: 3,
   },
-  [TimeRange.FIVE_YEARS]: {
+  'FIVE_YEARS': {
     label: "近 5 年",
     years: 5,
   },
 };
+
+export type TimeRangeKey = keyof typeof TIME_RANGE_CONFIG;
 
 export const BUTTON_STYLE = {
   minWidth: 100,

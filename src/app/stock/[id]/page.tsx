@@ -12,13 +12,14 @@ import {
   useTheme,
   alpha,
   useColorScheme,
+  Menu,
+  MenuItem,
 } from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useStockInfo, useMonthlyRevenue } from "@/api/hooks";
 
 import { RevenueChart } from "./components/chart/RevenueChart";
-import { RevenueTable } from "./components/table/RevenueTable";
-import { TimeRange } from "./types";
-import { CHART_CONFIG, TIME_RANGE_CONFIG, BUTTON_STYLE } from "./config";
+import { CHART_CONFIG, TIME_RANGE_CONFIG, BUTTON_STYLE, TimeRangeKey } from "./config";
 
 const formatYearMonth = (dateString: string) => {
   const [year, month] = dateString.split("-");
@@ -31,14 +32,29 @@ export default function StockDetailPage() {
   const params = useParams();
   const stockId = (params?.id as string) || "2867";
 
-  const [timeRange, setTimeRange] = useState<TimeRange>(TimeRange.ONE_YEAR);
   const [showDetailedData, setShowDetailedData] = useState(false);
+  
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRangeKey>('THREE_YEARS');
+  const open = Boolean(anchorEl);
+  
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  
+  const handleTimeRangeSelect = (timeRange: TimeRangeKey) => {
+    setSelectedTimeRange(timeRange);
+    handleClose();
+  };
 
   const now = new Date();
   const startDate = new Date();
 
-  const selectedTimeConfig = TIME_RANGE_CONFIG[timeRange];
-  startDate.setFullYear(now.getFullYear() - selectedTimeConfig.years);
+  startDate.setFullYear(now.getFullYear() - TIME_RANGE_CONFIG[selectedTimeRange].years);
 
   const stockInfoQuery = useStockInfo(stockId);
   const monthlyRevenueQuery = useMonthlyRevenue(
@@ -58,18 +74,14 @@ export default function StockDetailPage() {
     );
   }, [monthlyRevenueQuery.data]);
 
-  const recentMonths = sortedData.slice(0, 6);
-  const displayMonths = [...recentMonths].reverse();
+  const displayMonths = [...sortedData].reverse();
 
   const chartData = useMemo(() => {
     const data = [...sortedData].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    const filteredData =
-      timeRange === TimeRange.ONE_YEAR ? data.slice(-12) : data.slice(-60);
-
-    return filteredData.map((item) => {
+    return data.map((item) => {
       const [year, month] = item.date.split("-");
       return {
         date: formatYearMonth(item.date),
@@ -80,7 +92,7 @@ export default function StockDetailPage() {
         fullDate: item.date,
       };
     });
-  }, [sortedData, timeRange]);
+  }, [sortedData]);
 
   const uniqueYears = Array.from(new Set(chartData.map((item) => item.year)));
 
@@ -156,26 +168,54 @@ export default function StockDetailPage() {
               px: 2,
               py: 2,
               display: "flex",
-              gap: 1,
+              justifyContent: "space-between",
               position: "absolute",
               top: 0,
               left: 0,
+              right: 0,
               zIndex: 2,
             }}
           >
-            {Object.entries(TIME_RANGE_CONFIG).map(
-              ([rangeKey, rangeConfig]) => (
-                <Button
-                  key={rangeKey}
-                  variant={timeRange === rangeKey ? "contained" : "outlined"}
-                  onClick={() => setTimeRange(rangeKey as TimeRange)}
-                  size="small"
-                  sx={BUTTON_STYLE}
+            <Button
+              variant="contained"
+              size="small"
+              sx={BUTTON_STYLE}
+            >
+              每月營收
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              sx={{
+                ...BUTTON_STYLE,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+              onClick={handleClick}
+              endIcon={<KeyboardArrowDownIcon />}
+              aria-controls={open ? "time-range-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+            >
+              {TIME_RANGE_CONFIG[selectedTimeRange].label}
+            </Button>
+            <Menu
+              id="time-range-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+            >
+              {Object.entries(TIME_RANGE_CONFIG).map(([key, config]) => (
+                <MenuItem 
+                  key={key} 
+                  onClick={() => handleTimeRangeSelect(key as TimeRangeKey)}
+                  selected={key === selectedTimeRange}
                 >
-                  {rangeConfig.label}
-                </Button>
-              )
-            )}
+                  {config.label}
+                </MenuItem>
+              ))}
+            </Menu>
           </Box>
 
           <Box
@@ -221,7 +261,93 @@ export default function StockDetailPage() {
             </Button>
           </Box>
 
-          <RevenueTable recentMonths={displayMonths} naColor={naColor} />
+          {/* Custom Table */}
+          <Box
+            sx={{
+              width: "100%",
+              overflowX: "auto",
+              "& table": {
+                borderCollapse: "separate",
+                borderSpacing: 0,
+              },
+              "& th, & td": {
+                padding: "6px 16px",
+                borderBottom: "1px solid",
+                borderBottomColor: "divider",
+              },
+              "& thead th": {
+                backgroundColor: "background.paper",
+                position: "sticky",
+                top: 0,
+                zIndex: 1,
+              },
+              "& th:first-of-type, & td:first-of-type": {
+                position: "sticky",
+                left: 0,
+                zIndex: 2,
+                backgroundColor: "background.paper",
+                boxShadow: "1px 0px 0px 0px rgba(0,0,0,0.12)",
+              },
+              "& thead th:first-of-type": {
+                zIndex: 3,
+              },
+            }}
+          >
+            <table style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th style={{ whiteSpace: "nowrap", textAlign: "left" }}>
+                    年度月份
+                  </th>
+                  {displayMonths.map((item) => (
+                    <th
+                      key={item.date}
+                      style={{ whiteSpace: "nowrap", textAlign: "right" }}
+                    >
+                      {formatYearMonth(item.date)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ whiteSpace: "nowrap", textAlign: "left" }}>
+                    每月營收
+                  </td>
+                  {displayMonths.map((item) => (
+                    <td
+                      key={`revenue-${item.date}`}
+                      style={{ textAlign: "right" }}
+                    >
+                      {item.formattedRevenue}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td style={{ whiteSpace: "nowrap", textAlign: "left" }}>
+                    單月營收年增率 (%)
+                  </td>
+                  {displayMonths.map((item) => (
+                    <td
+                      key={`yoy-${item.date}`}
+                      style={{
+                        textAlign: "right",
+                        color: item.yoyChangeRate
+                          ? item.yoyChangeRate > 0
+                            ? CHART_CONFIG.colors.positive
+                            : CHART_CONFIG.colors.negative
+                          : naColor,
+                      }}
+                    >
+                      {item.yoyChangeRate
+                        ? item.yoyChangeRate.toFixed(2)
+                        : "N/A"}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </Box>
 
           <Box
             sx={{ px: 2, py: 1, textAlign: "right", borderTop: "1px solid" }}
