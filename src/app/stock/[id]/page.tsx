@@ -19,12 +19,16 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useStockInfo, useMonthlyRevenue } from "@/api/hooks";
 
 import { RevenueChart } from "./components/chart/RevenueChart";
-import { CHART_CONFIG, TIME_RANGE_CONFIG, BUTTON_STYLE, TimeRangeKey } from "./config";
-
-const formatYearMonth = (dateString: string) => {
-  const [year, month] = dateString.split("-");
-  return `${year}${month.padStart(2, "0")}`;
-};
+import { RevenueTable } from "@/components/RevenueTable/RevenueTable";
+import { formatYearMonth } from "@/utils/formatters";
+import { 
+  CHART_CONFIG, 
+  TIME_RANGE_CONFIG, 
+  BUTTON_STYLE, 
+  TimeRangeKey, 
+  REVENUE_TABLE_CONFIG, 
+  RevenueItem 
+} from "./config";
 
 export default function StockDetailPage() {
   const theme = useTheme();
@@ -100,20 +104,6 @@ export default function StockDetailPage() {
     mode === "dark"
       ? CHART_CONFIG.colors.neutral
       : theme.palette.text.secondary;
-
-  const tableScrollContainerRef = useRef<HTMLDivElement>(null);
-
-  // auto scroll to right
-  useEffect(() => {
-    if (tableScrollContainerRef.current && !isLoading) {
-      const scrollContainer = tableScrollContainerRef.current;
-      const timeoutId = setTimeout(() => {
-        scrollContainer.scrollLeft = scrollContainer.scrollWidth;
-      }, 100);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isLoading, sortedData]);
 
   if (isLoading) {
     return (
@@ -275,94 +265,13 @@ export default function StockDetailPage() {
             </Button>
           </Box>
 
-          {/* Custom Table */}
-          <Box
-            ref={tableScrollContainerRef}
-            sx={{
-              width: "100%",
-              overflowX: "auto",
-              "& table": {
-                borderCollapse: "separate",
-                borderSpacing: 0,
-              },
-              "& th, & td": {
-                padding: "6px 16px",
-                borderBottom: "1px solid",
-                borderBottomColor: "divider",
-              },
-              "& thead th": {
-                backgroundColor: "background.paper",
-                position: "sticky",
-                top: 0,
-                zIndex: 1,
-              },
-              "& th:first-of-type, & td:first-of-type": {
-                position: "sticky",
-                left: 0,
-                zIndex: 2,
-                backgroundColor: "background.paper",
-                boxShadow: "1px 0px 0px 0px rgba(0,0,0,0.12)",
-              },
-              "& thead th:first-of-type": {
-                zIndex: 3,
-              },
-            }}
-          >
-            <table style={{ width: "100%" }}>
-              <thead>
-                <tr>
-                  <th style={{ whiteSpace: "nowrap", textAlign: "left" }}>
-                    年度月份
-                  </th>
-                  {displayMonths.map((item) => (
-                    <th
-                      key={item.date}
-                      style={{ whiteSpace: "nowrap", textAlign: "right" }}
-                    >
-                      {formatYearMonth(item.date)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{ whiteSpace: "nowrap", textAlign: "left" }}>
-                    每月營收
-                  </td>
-                  {displayMonths.map((item) => (
-                    <td
-                      key={`revenue-${item.date}`}
-                      style={{ textAlign: "right" }}
-                    >
-                      {item.formattedRevenue}
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <td style={{ whiteSpace: "nowrap", textAlign: "left" }}>
-                    單月營收年增率 (%)
-                  </td>
-                  {displayMonths.map((item) => (
-                    <td
-                      key={`yoy-${item.date}`}
-                      style={{
-                        textAlign: "right",
-                        color: item.yoyChangeRate
-                          ? item.yoyChangeRate > 0
-                            ? CHART_CONFIG.colors.positive
-                            : CHART_CONFIG.colors.negative
-                          : naColor,
-                      }}
-                    >
-                      {item.yoyChangeRate
-                        ? item.yoyChangeRate.toFixed(2)
-                        : "N/A"}
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </Box>
+          <RevenueTable
+            data={displayMonths as RevenueItem[]}
+            firstColumnLabel={REVENUE_TABLE_CONFIG.firstColumnLabel}
+            rows={REVENUE_TABLE_CONFIG.rows}
+            naColor={naColor}
+            formatMonthFn={formatYearMonth}
+          />
 
           <Box
             sx={{ px: 2, py: 1, textAlign: "right", borderTop: "1px solid" }}
