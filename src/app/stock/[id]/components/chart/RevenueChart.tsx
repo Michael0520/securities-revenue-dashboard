@@ -30,18 +30,49 @@ export function RevenueChart({
 
   return (
     <Box width="100%" height="100%" position="relative">
+      <Box 
+        width="100%" 
+        display="flex" 
+        justifyContent="space-between" 
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          px: { xs: 3, sm: 6 },
+          zIndex: 5,
+        }}
+      >
+        <Typography 
+          variant="subtitle2" 
+          color="text.primary" 
+          fontWeight="bold"
+          sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+        >
+          千元
+        </Typography>
+        <Typography 
+          variant="subtitle2" 
+          color="text.primary" 
+          fontWeight="bold"
+          sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
+        >
+          %
+        </Typography>
+      </Box>
+
       <Box
         sx={{
           width: "100%",
           height: "100%",
           position: "relative",
+          mt: 3,
         }}
       >
         <Box
           sx={{
             width: "100%",
             height: "calc(100% - 30px)",
-            mt: 4,
             overflow: "hidden",
             "& .MuiChartsLegend-root": {
               paddingTop: 0,
@@ -61,7 +92,7 @@ export function RevenueChart({
               {
                 id: "leftAxis",
                 scaleType: "linear",
-                label: "千元",
+                label: "",
                 valueFormatter: (value: number) =>
                   `${Math.round(value).toLocaleString("zh-TW")}`,
                 tickSize: CHART_CONFIG.axis.tickSize,
@@ -73,7 +104,7 @@ export function RevenueChart({
                 id: "rightAxis",
                 scaleType: "linear",
                 position: "right",
-                label: "%",
+                label: "",
                 valueFormatter: (value: number) => `${value}`,
                 tickSize: CHART_CONFIG.axis.tickSize,
                 tickLabelStyle: {
@@ -116,14 +147,21 @@ export function RevenueChart({
                 curve: "natural",
               },
             ]}
-            margin={CHART_CONFIG.margins}
+            margin={{
+              ...CHART_CONFIG.margins,
+            }}
             height={CHART_CONFIG.height}
           >
             <BarPlot />
             <LinePlot />
             <ChartsLegend
-              position={{ vertical: "top", horizontal: "left" } as const}
+              position={{ vertical: "top", horizontal: "middle" } as const}
               direction="row"
+              slotProps={{
+                legend: {
+                  padding: { top: 0, left: 0 },
+                },
+              }}
             />
             <ChartsAxisHighlight />
             <ChartsTooltip />

@@ -227,7 +227,7 @@ export default function StockDetailPage() {
               height: 450,
               bgcolor: "background.paper",
               p: 2,
-              pt: 5,
+              pt: 8,
               position: "relative",
               display: "flex",
               flexDirection: "column",
