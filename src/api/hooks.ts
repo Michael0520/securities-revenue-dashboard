@@ -14,7 +14,7 @@ const QUERY_CONFIG = {
   },
 };
 
-const DEFAULT_STOCK_ID = "2867";
+export const DEFAULT_STOCK_ID = "2867";
 
 export type ApiResponse<T> = FinMindResponse<T>;
 
