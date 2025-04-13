@@ -1,5 +1,5 @@
 'use client';
-import { createTheme } from '@mui/material/styles';
+import { createTheme, alpha } from '@mui/material/styles';
 import { Roboto } from 'next/font/google';
 
 const roboto = Roboto({
@@ -29,6 +29,44 @@ const theme = createTheme({
             },
           ],
         },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          borderColor: theme.palette.mode === 'dark' 
+            ? alpha(theme.palette.common.white, 0.2) 
+            : theme.palette.divider,
+        }),
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          borderColor: theme.palette.mode === 'dark' 
+            ? alpha(theme.palette.common.white, 0.2) 
+            : theme.palette.divider,
+        }),
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          '& .MuiTableCell-root': {
+            backgroundColor: theme.palette.mode === 'dark' 
+              ? alpha(theme.palette.background.paper, 0.15)
+              : alpha(theme.palette.action.hover, 0.05),
+          }
+        }),
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          borderColor: theme.palette.mode === 'dark' 
+            ? alpha(theme.palette.common.white, 0.2) 
+            : theme.palette.divider,
+        }),
       },
     },
   },
